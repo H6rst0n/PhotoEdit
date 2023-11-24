@@ -1,0 +1,1 @@
+Please run "setup.bat" first, and then you can run "photoeditor.pyw" directly after installing the required packages.
