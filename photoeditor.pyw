@@ -47,6 +47,18 @@ def black_or_white_background_select():
         black_or_white_background = "B"
         black_or_white_show.config(text="目前: 黑")
 
+def get_quality(self):
+    global quality
+    quality = quality_scale.get()
+
+def compress_image():
+    if selected_path and os.path.isfile(selected_path):
+        pm.compress_image(selected_path, output_path, quality)
+    elif selected_path and os.path.isdir(selected_path):
+        jpgfile = [file for file in os.listdir(selected_path) if file.endswith((".jpg", ".jpeg", ".JPG", ".png"))]
+        for file in jpgfile:
+            pm.compress_image(os.path.join(selected_path, file), output_path, quality)
+
 
 win = tk.Tk() # 建立主視窗
 
@@ -82,6 +94,10 @@ black_or_white = tk.Button(win, text="黑或白", command=black_or_white_backgro
 black_or_white.config(font=("微軟正黑體", 14))
 black_or_white.place(x=230, y=250)
 
+compress_button = tk.Button(win, text="壓縮", bg="yellow", command=compress_image)
+compress_button.config(font=("微軟正黑體", 14))
+compress_button.place(x=325, y=300)
+
 # Lable
 input_show = tk.Label(win, text="輸入位置: ")
 input_show.config(font=("微軟正黑體", 12))
@@ -95,5 +111,9 @@ black_or_white_show = tk.Label(win, text="目前: 黑")
 black_or_white_show.config(font=("微軟正黑體", 14))
 black_or_white_show.place(x=310, y=257)
 
+quality_scale = tk.Scale(orient="horizontal", length=300)
+quality_scale.config(command=get_quality)
+quality_scale.set(85)
+quality_scale.place(x=10, y=300)
 
 win.mainloop() # 常駐主視窗

@@ -69,3 +69,11 @@ def Adjust_vertical_photo_ratio(input_file, output_path, color):
     # Save the processed photo.
     output_file = os.path.join(output_path, os.path.basename(input_file))
     final_image.save(output_file)
+
+
+# comppress image
+def compress_image(input_file, output_path, quality):
+    # Open Original Photo
+    original_image = Image.open(input_file)
+    output_file = os.path.join(output_path, os.path.splitext(os.path.basename(input_file))[0] + ".jpg")
+    original_image.convert("RGB").save(output_file, format="JPEG", quality=quality)
