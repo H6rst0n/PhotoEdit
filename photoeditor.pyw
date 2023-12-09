@@ -30,6 +30,18 @@ def resize_image():
         for file in jpgfile:
             pm.Adjustment_Resolution(os.path.join(selected_path, file), output_path, 1080)
 
+
+def resize_image2():
+    if selected_path and os.path.isfile(selected_path):
+        target_resolution = int(resolution_entry.get())  # 取得使用者輸入的解析度值
+        pm.Adjustment_Resolution(selected_path, output_path, target_resolution)
+    elif selected_path and os.path.isdir(selected_path):
+        jpgfile = [file for file in os.listdir(selected_path) if file.endswith((".jpg", ".jpeg", ".JPG", ".png"))]
+        for file in jpgfile:
+            target_resolution = int(resolution_entry.get())  # 取得使用者輸入的解析度值
+            pm.Adjustment_Resolution(os.path.join(selected_path, file), output_path, target_resolution)
+
+
 def border_image():
     if selected_path and os.path.isfile(selected_path):
         pm.Adjust_vertical_photo_ratio(selected_path, output_path, "B")
@@ -96,7 +108,11 @@ black_or_white.place(x=230, y=250)
 
 compress_button = tk.Button(win, text="壓縮", bg="yellow", command=compress_image)
 compress_button.config(font=("微軟正黑體", 14))
-compress_button.place(x=325, y=300)
+compress_button.place(x=430, y=300)
+
+process_button = tk.Button(win, text="以設定的解析度處理圖片", bg="yellow", command=resize_image2)
+process_button.config(font=("微軟正黑體", 14))
+process_button.place(x=500, y=190)
 
 # Lable
 input_show = tk.Label(win, text="輸入位置: ")
@@ -114,6 +130,18 @@ black_or_white_show.place(x=310, y=257)
 quality_scale = tk.Scale(orient="horizontal", length=300)
 quality_scale.config(command=get_quality)
 quality_scale.set(85)
-quality_scale.place(x=10, y=300)
+quality_scale.place(x=100, y=300)
+
+resolution_label = tk.Label(win, text="輸入解析度:")
+resolution_label.config(font=("微軟正黑體", 14))
+resolution_label.place(x=230, y=197)
+
+resolution_entry = tk.Entry(win, width=10)
+resolution_entry.config(font=("微軟正黑體", 14))
+resolution_entry.place(x=350, y=197)
+
+quality_label = tk.Label(win, text="壓縮率：")
+quality_label.config(font=("微軟正黑體", 14))
+quality_label.place(x=10, y=312)
 
 win.mainloop() # 常駐主視窗
