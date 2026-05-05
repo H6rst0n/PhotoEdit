@@ -31,7 +31,7 @@ def resize_image():
     if selected_path and os.path.isfile(selected_path):
         pm.Adjustment_Resolution(selected_path, output_path, 1080)
     elif selected_path and os.path.isdir(selected_path):
-        jpgfile = [file for file in os.listdir(selected_path) if file.endswith((".jpg", ".jpeg", ".JPG", ".png"))]
+        jpgfile = [file for file in os.listdir(selected_path) if file.endswith((".jpg", ".jpeg", ".JPG", ".png", ".PNG"))]
         for file in jpgfile:
             pm.Adjustment_Resolution(os.path.join(selected_path, file), output_path, 1080)
 

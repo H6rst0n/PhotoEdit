@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Editor for IG - Full Version</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, "微軟正黑體";
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--primary-color);
+        }
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        input[type="number"], input[type="text"], select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+        .color-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="color"] {
+            border: none;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background: none;
+        }
+        .rgb-inputs {
+            display: flex;
+            gap: 5px;
+        }
+        .rgb-inputs input {
+            width: 50px;
+            text-align: center;
+        }
+        .fav-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #357abd;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-action {
+            width: 100%;
+            margin-top: 20px;
+            font-size: 1.2em;
+            padding: 15px;
+        }
+        #preview-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        #preview-canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: #eee;
+            display: none;
+        }
+        .file-list {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            overflow: hidden;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 25px;
+            background-color: var(--primary-color);
+            transition: width 0.3s;
+            text-align: center;
+            color: white;
+            font-size: 0.9em;
+            line-height: 25px;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>IG 照片處理工具</h1>
+
+    <div class="section">
+        <span class="section-title">1. 選擇照片</span>
+        <input type="file" id="file-input" multiple accept="image/*" class="btn btn-secondary">
+        <div id="file-list" class="file-list">尚未選擇檔案</div>
+    </div>
+
+    <div class="section">
+        <span class="section-title">2. 處理模式</span>
+        <div class="controls">
+            <div class="control-group">
+                <label>選擇功能</label>
+                <select id="main-mode">
+                    <option value="ig-mode">IG 模式 (寬度 1080px)</option>
+                    <option value="custom-res">自定義解析度 (指定寬度)</option>
+                    <option value="compress-only">僅壓縮 (保持原始大小)</option>
+                </select>
+            </div>
+            
+            <div id="ig-padding-control" class="control-group checkbox-group">
+                <input type="checkbox" id="ig-pad-toggle" checked>
+                <label for="ig-pad-toggle">補滿成 IG 直幅比例 (1080x1350)</label>
+            </div>
+
+            <div id="custom-res-control" class="control-group hidden">
+                <label>目標寬度 (PX)</label>
+                <input type="number" id="target-width" value="1080">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <span class="section-title">3. 輸出設定</span>
+        <div class="controls">
+            <div class="control-group">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="margin-bottom: 0;">啟用照片品質壓縮</label>
+                    <input type="checkbox" id="compress-toggle">
+                </div>
+                <div id="quality-slider-container" style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                    <input type="range" id="quality" min="1" max="100" value="85" style="flex-grow: 1;">
+                    <span id="quality-val">85%</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>匯出方式</label>
+                <select id="export-mode">
+                    <option value="zip">打包成 ZIP (批量處理推薦)</option>
+                    <option value="directory">直接存入指定資料夾 (最方便，僅限 Chrome/Edge)</option>
+                    <option value="individual">單獨下載 (多圖時不建議)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="bg-settings" class="section">
+        <span class="section-title">4. 背景設定 (僅限補滿比例時)</span>
+        <div class="controls">
+            <div class="control-group">
+                <label>背景類型</label>
+                <select id="bg-type">
+                    <option value="solid">純色</option>
+                    <option value="blur" selected>毛玻璃 (模糊背景)</option>
+                </select>
+            </div>
+            <div id="solid-color-controls" class="control-group hidden">
+                <label>背景顏色</label>
+                <div class="color-controls">
+                    <input type="color" id="bg-color-picker" value="#000000">
+                    <div class="rgb-inputs">
+                        <input type="text" id="rgb-r" placeholder="R" maxlength="3">
+                        <input type="text" id="rgb-g" placeholder="G" maxlength="3">
+                        <input type="text" id="rgb-b" placeholder="B" maxlength="3">
+                    </div>
+                    <button id="add-fav-color" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;">保存</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <label>常用顏色</label>
+                    <button id="clear-fav-colors" style="background: none; border: none; color: #999; cursor: pointer; font-size: 0.8em; text-decoration: underline;">清除全部</button>
+                </div>
+                <div id="fav-colors" class="fav-colors">
+                    <!-- Favorite colors will be added here -->
+                </div>
+            </div>
+            <div id="blur-controls" class="control-group">
+                <label>模糊程度 (PX)</label>
+                <input type="number" id="blur-amount" value="30" min="0" max="100">
+            </div>
+        </div>
+    </div>
+
+    <button id="process-btn" class="btn btn-action">開始處理並下載</button>
+
+    <div id="progress-container" class="progress-container">
+        <div id="progress-bar" class="progress-bar">0%</div>
+    </div>
+
+    <div id="preview-container">
+        <span class="section-title">最後一張處理預覽</span>
+        <canvas id="preview-canvas"></canvas>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('file-input');
+    const fileList = document.getElementById('file-list');
+    const processBtn = document.getElementById('process-btn');
+    const previewCanvas = document.getElementById('preview-canvas');
+    
+    const mainMode = document.getElementById('main-mode');
+    const igPadToggle = document.getElementById('ig-pad-toggle');
+    const igPaddingControl = document.getElementById('ig-padding-control');
+    const customResControl = document.getElementById('custom-res-control');
+    const targetWidthInput = document.getElementById('target-width');
+    
+    const bgSettings = document.getElementById('bg-settings');
+    const bgType = document.getElementById('bg-type');
+    const solidColorControls = document.getElementById('solid-color-controls');
+    const blurControls = document.getElementById('blur-controls');
+    const bgColorPicker = document.getElementById('bg-color-picker');
+    const rgbR = document.getElementById('rgb-r');
+    const rgbG = document.getElementById('rgb-g');
+    const rgbB = document.getElementById('rgb-b');
+    const addFavColorBtn = document.getElementById('add-fav-color');
+    const clearFavColorsBtn = document.getElementById('clear-fav-colors');
+    const favColorsContainer = document.getElementById('fav-colors');
+    
+    const qualityScale = document.getElementById('quality');
+    const qualityVal = document.getElementById('quality-val');
+    const compressToggle = document.getElementById('compress-toggle');
+    const qualitySliderContainer = document.getElementById('quality-slider-container');
+    const exportMode = document.getElementById('export-mode');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+
+    let favoriteColors = JSON.parse(localStorage.getItem('favColors') || '["#000000", "#FFFFFF"]');
+
+    // --- UI Logic ---
+    function updateUI() {
+        const mode = mainMode.value;
+        const isIgMode = mode === 'ig-mode';
+        const isCustom = mode === 'custom-res';
+        
+        igPaddingControl.classList.toggle('hidden', !isIgMode);
+        customResControl.classList.toggle('hidden', !isCustom);
+        
+        // Background settings only visible if in IG mode and Padding is ON
+        const showBg = isIgMode && igPadToggle.checked;
+        bgSettings.classList.toggle('hidden', !showBg);
+        
+        solidColorControls.classList.toggle('hidden', bgType.value !== 'solid');
+        blurControls.classList.toggle('hidden', bgType.value !== 'blur');
+
+        // Quality slider visibility
+        qualitySliderContainer.style.opacity = compressToggle.checked ? "1" : "0.3";
+        qualityScale.disabled = !compressToggle.checked;
+    }
+
+    mainMode.onchange = updateUI;
+    igPadToggle.onchange = updateUI;
+    bgType.onchange = updateUI;
+    compressToggle.onchange = updateUI;
+
+    qualityScale.oninput = () => qualityVal.textContent = qualityScale.value + '%';
+
+    // --- Color Logic ---
+    updateFavColors();
+    updateRGBInputs("#000000");
+
+    bgColorPicker.oninput = (e) => updateRGBInputs(e.target.value);
+
+    [rgbR, rgbG, rgbB].forEach(input => {
+        input.oninput = () => {
+            let r = Math.min(255, Math.max(0, parseInt(rgbR.value) || 0));
+            let g = Math.min(255, Math.max(0, parseInt(rgbG.value) || 0));
+            let b = Math.min(255, Math.max(0, parseInt(rgbB.value) || 0));
+            const hex = rgbToHex(r, g, b);
+            bgColorPicker.value = hex;
+        };
+    });
+
+    addFavColorBtn.onclick = () => {
+        const color = bgColorPicker.value;
+        if (!favoriteColors.includes(color)) {
+            favoriteColors.push(color);
+            localStorage.setItem('favColors', JSON.stringify(favoriteColors));
+            updateFavColors();
+        }
+    };
+
+    clearFavColorsBtn.onclick = () => {
+        if (confirm('確定要清除所有常用顏色嗎？')) {
+            favoriteColors = [];
+            localStorage.setItem('favColors', JSON.stringify(favoriteColors));
+            updateFavColors();
+        }
+    };
+
+    function updateFavColors() {
+        favColorsContainer.innerHTML = '';
+        favoriteColors.forEach(color => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.onclick = () => {
+                bgColorPicker.value = color;
+                updateRGBInputs(color);
+            };
+            favColorsContainer.appendChild(swatch);
+        });
+    }
+
+    function updateRGBInputs(hex) {
+        const rgb = hexToRgb(hex);
+        rgbR.value = rgb.r;
+        rgbG.value = rgb.g;
+        rgbB.value = rgb.b;
+    }
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 0, g: 0, b: 0 };
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+    }
+
+    // --- File Handling ---
+    fileInput.onchange = () => {
+        const count = fileInput.files.length;
+        if (count > 0) {
+            fileList.innerHTML = `<strong>已選擇 ${count} 張照片</strong><br>` + 
+                Array.from(fileInput.files).slice(0, 5).map(f => f.name).join('<br>') + 
+                (count > 5 ? `<br>... 以及另外 ${count - 5} 個檔案` : '');
+        } else {
+            fileList.innerHTML = '尚未選擇檔案';
+        }
+    };
+
+    // --- Core Processing Logic ---
+    async function processImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const ctx = previewCanvas.getContext('2d');
+                    const mode = mainMode.value;
+                    
+                    // Determine Quality
+                    let quality = 1.0; // Max quality (no compression)
+                    if (compressToggle.checked) {
+                        quality = parseInt(qualityScale.value) / 100;
+                    }
+                    
+                    let finalWidth, finalHeight;
+                    let drawX = 0, drawY = 0, drawW, drawH;
+                    let usePadding = false;
+
+                    if (mode === 'compress-only') {
+                        // Function 4: Compression only
+                        finalWidth = img.width;
+                        finalHeight = img.height;
+                        drawW = finalWidth;
+                        drawH = finalHeight;
+                    } else if (mode === 'custom-res') {
+                        // Function 2: Custom resolution (Width only, keep ratio)
+                        finalWidth = parseInt(targetWidthInput.value) || 1080;
+                        finalHeight = (img.height / img.width) * finalWidth;
+                        drawW = finalWidth;
+                        drawH = finalHeight;
+                    } else if (mode === 'ig-mode') {
+                        if (igPadToggle.checked) {
+                            // Function 3: IG Vertical Pad (1080x1350)
+                            finalWidth = 1080;
+                            finalHeight = 1350;
+                            usePadding = true;
+
+                            if (img.height > img.width) {
+                                drawH = 1350;
+                                drawW = (drawH / img.height) * img.width;
+                            } else {
+                                drawW = 1080;
+                                drawH = (drawW / img.width) * img.height;
+                            }
+                            drawX = (finalWidth - drawW) / 2;
+                            drawY = (finalHeight - drawH) / 2;
+                        } else {
+                            // Function 1: IG Standard Resize (1080px width)
+                            finalWidth = 1080;
+                            finalHeight = (img.height / img.width) * finalWidth;
+                            drawW = finalWidth;
+                            drawH = finalHeight;
+                        }
+                    }
+
+                    previewCanvas.width = finalWidth;
+                    previewCanvas.height = finalHeight;
+
+                    // Draw Background (if padding)
+                    if (usePadding) {
+                        if (bgType.value === 'solid') {
+                            ctx.fillStyle = bgColorPicker.value;
+                            ctx.fillRect(0, 0, finalWidth, finalHeight);
+                        } else {
+                            ctx.save();
+                            const scale = Math.max(finalWidth / img.width, finalHeight / img.height);
+                            const bw = img.width * scale;
+                            const bh = img.height * scale;
+                            const bx = (finalWidth - bw) / 2;
+                            const by = (finalHeight - bh) / 2;
+                            ctx.filter = `blur(${document.getElementById('blur-amount').value}px) brightness(0.8)`;
+                            ctx.drawImage(img, bx, by, bw, bh);
+                            ctx.restore();
+                            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                            ctx.fillRect(0,0, finalWidth, finalHeight);
+                        }
+                    }
+
+                    // Draw Main Image
+                    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+                    previewCanvas.style.display = 'inline-block';
+                    
+                    previewCanvas.toBlob((blob) => {
+                        resolve({ blob, name: file.name.replace(/\.[^/.]+$/, "") + "_edited.jpg" });
+                    }, 'image/jpeg', quality);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    processBtn.onclick = async () => {
+        const files = fileInput.files;
+        if (files.length === 0) {
+            alert('請先選擇照片');
+            return;
+        }
+
+        const mode = exportMode.value;
+        let dirHandle = null;
+
+        if (mode === 'directory') {
+            if (!window.showDirectoryPicker) {
+                alert('您的瀏覽器不支援直接存取資料夾功能，請更換為 Chrome 或 Edge，或是使用 ZIP 下載。');
+                return;
+            }
+            try {
+                dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            } catch (err) {
+                console.log('User cancelled folder picker');
+                return;
+            }
+        }
+
+        processBtn.disabled = true;
+        processBtn.textContent = '處理中...';
+        progressContainer.style.display = 'block';
+        
+        const zip = new JSZip();
+        let processedCount = 0;
+
+        for (const file of files) {
+            const result = await processImage(file);
+            
+            if (mode === 'zip') {
+                zip.file(result.name, result.blob);
+            } else if (mode === 'directory' && dirHandle) {
+                try {
+                    const fileHandle = await dirHandle.getFileHandle(result.name, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(result.blob);
+                    await writable.close();
+                } catch (err) {
+                    console.error('Save to directory failed:', err);
+                }
+            } else {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(result.blob);
+                link.download = result.name;
+                link.click();
+                setTimeout(() => URL.revokeObjectURL(link.href), 60000);
+            }
+
+            processedCount++;
+            const progress = Math.round((processedCount / files.length) * 100);
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = `處理中: ${processedCount} / ${files.length} (${progress}%)`;
+            
+            if (processedCount % 5 === 0) await new Promise(r => setTimeout(r, 0));
+        }
+
+        if (mode === 'zip') {
+            progressBar.textContent = '正在打包壓縮檔...';
+            const content = await zip.generateAsync({ type: 'blob' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `Processed_Photos_${new Date().getTime()}.zip`;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 60000);
+        }
+
+        processBtn.disabled = false;
+        processBtn.textContent = '開始處理並下載';
+        progressBar.textContent = '處理完成！';
+        setTimeout(() => progressContainer.style.display = 'none', 5000);
+    };
+
+    // Init UI
+    updateUI();
+
+</script>
+
+</body>
+</html>

@@ -41,7 +41,7 @@ def resize_image2():
         target_resolution = int(resolution_entry.get())  # 取得使用者輸入的解析度值
         pm.Adjustment_Resolution(selected_path, output_path, target_resolution)
     elif selected_path and os.path.isdir(selected_path):
-        jpgfile = [file for file in os.listdir(selected_path) if file.endswith((".jpg", ".jpeg", ".JPG", ".png"))]
+        jpgfile = [file for file in os.listdir(selected_path) if file.endswith((".jpg", ".jpeg", ".JPG", ".png", ".PNG"))]
         for file in jpgfile:
             target_resolution = int(resolution_entry.get())  # 取得使用者輸入的解析度值
             pm.Adjustment_Resolution(os.path.join(selected_path, file), output_path, target_resolution)
