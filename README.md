@@ -38,11 +38,11 @@
 
 部署只需要 `index.html`。本專案另附 `.github/workflows/pages.yml`，會把 `index.html`、`.nojekyll`、第三方授權說明打包，歷史 Python／HTML 與測試不會放進網站。
 
-首次設定：在 GitHub 儲存庫 **Settings → Pages → Build and deployment → Source** 選擇 **GitHub Actions**。將變更推送至 `main`，或在 Actions 手動執行 **Deploy PhotoEdit to GitHub Pages**。成功部署後，預期網址為：
+首次設定：在 GitHub 儲存庫 **Settings → Pages → Build and deployment → Source** 選擇 **GitHub Actions**。將變更推送至 `main`，或在 Actions 手動執行 **Deploy PhotoEdit to GitHub Pages**。正式網址為：
 
 [https://h6rst0n.github.io/PhotoEdit/](https://h6rst0n.github.io/PhotoEdit/)
 
-這個網址是預期部署位置，不代表尚未執行的部署已經成功。依據：[GitHub 官方自訂 Pages workflow 說明](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+2026-11-06 已啟用並部署成功：[部署紀錄](https://github.com/H6rst0n/PhotoEdit/actions/runs/42118702159)。已驗證 HTTP 200、線上 HTML 與本機 SHA-256 一致，以及載入後離線匯出 JPEG／PNG ZIP。後續修改 `index.html` 並推送到 `main` 會自動部署。設定依據：[GitHub 官方自訂 Pages workflow 說明](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 
 ## 專案結構
 

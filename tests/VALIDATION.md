@@ -17,4 +17,13 @@
 - 1280 px 桌面與 390 px 手機布局截圖檢視；手機無水平溢出。
 - 正式頁面無外部網路請求、無未捕捉的 JavaScript 錯誤。
 
-限制：未實測實體手機／Safari／Firefox、原生資料夾權限對話框、極限記憶體負載與 Instagram 帳號上傳。GitHub Pages 部署狀態須另外查核，瀏覽器本機測試不代表已上線。
+限制：未實測實體手機／Safari／Firefox、原生資料夾權限對話框、極限記憶體負載與 Instagram 帳號上傳。
+
+## GitHub Pages 上線驗證
+
+- 原倉庫：`H6rst0n/PhotoEdit`，應用程式提交 `b10e50dfd2dd844020adbab28fedd7c2aed022a8`。
+- [Actions run 42118702159](https://github.com/H6rst0n/PhotoEdit/actions/runs/42118702159) 的 deploy job 全部步驟成功。
+- 正式網址：https://h6rst0n.github.io/PhotoEdit/ ，HTTP 200。
+- 回傳的 HTML 與本機 `index.html` SHA-256 相同。
+- Playwright 從正式網址載入後切成離線，實際輸出同一張照片的 JPEG 與 PNG，ZIP CRC 驗證成功。
+- 正式頁面無未捕捉的 JavaScript 錯誤。
