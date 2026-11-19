@@ -58,3 +58,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+## 影片處理元件
+
+- [@ffmpeg/core 0.12.10](https://registry.npmjs.org/@ffmpeg/core/-/core-0.12.10.tgz) 提供 FFmpeg WebAssembly 核心，套件標示 GPL-2.0-or-later。單檔內附 GPL 第 2 版全文。[建置原始碼](https://github.com/ffmpegwasm/ffmpeg.wasm)
+- [Mediabunny 1.66.2 原始碼與套件](https://registry.npmjs.org/mediabunny/-/mediabunny-1.66.2.tgz) 用於 WebCodecs 影片處理，採用 [Mozilla Public License 2.0](https://mozilla.org/MPL/2.0/)。內嵌版本保留上游著作權聲明。
