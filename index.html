@@ -19,7 +19,7 @@
 <div class="shell">
 <header class="topbar"><div class="brand">PhotoEdit<span>照片留白與批次匯出</span></div><span class="privacy">● 本機處理・可離線使用</span></header>
 <div class="intro"><div><h1>保留畫面，留一點空間。</h1><p>比例、像素、品質與背景，各自決定。以背景補足畫面，保留完整構圖。</p></div><button id="reset-btn" class="small-btn" type="button">還原預設</button></div>
-<nav class="mode-bar" aria-label="編輯模式"><button type="button" id="photo-mode" aria-pressed="true">照片</button><button type="button" id="film-mode" aria-pressed="false">影片試用</button></nav>
+<nav class="mode-bar" aria-label="編輯模式"><button type="button" id="photo-mode" aria-pressed="true">照片</button><button type="button" id="film-mode" aria-pressed="false">影片</button></nav>
 <main class="layout">
 <div>
 <fieldset id="editor-controls" aria-label="照片與輸出設定">
@@ -610,7 +610,10 @@ async function accelerateVideo(data) {
         typeof OffscreenCanvas === 'undefined') throw new Error('瀏覽器未提供 WebCodecs');
     const M = Mediabunny, g = data.geometry;
     const opts = {width:g.width, height:g.height, hardwareAcceleration:'prefer-hardware', quality:M.QUALITY_HIGH};
-    if (!(await M.canEncodeVideo('avc', opts))) throw new Error('硬體編碼器不支援這個 H.264 輸出尺寸');
+    if (!(await M.canEncodeVideo('avc', opts))) throw new Error(
+        `瀏覽器未回報可用的硬體優先 H.264 設定（輸出 ${g.width} × ${g.height} px）。` +
+        '可比較上次的畫布尺寸；若尺寸相同，請確認瀏覽器的圖形加速已啟用。'
+    );
     const input = new M.Input({formats:M.ALL_FORMATS, source:new M.BlobSource(data.file)});
     try {
         const canvas = new OffscreenCanvas(g.width, g.height);
@@ -1207,7 +1210,7 @@ drawFavorites(); syncRGB(); updateUI();
                     if (controller !== job) return;
                     download(movie, name);
                     const length = Number.isFinite(duration) ? '，成品片長 ' + duration.toFixed(2) + ' 秒' : '';
-                    finish('已匯出 ' + name + length + (copy ? '' : '。影像編碼：' + data.backend + (data.fallbackReason ? '（自動切換：' + data.fallbackReason + '）' : '')));
+                    finish('已匯出 ' + name + length + (copy ? '' : '。' + g.width + ' × ' + g.height + ' px，影像編碼：' + data.backend + (data.fallbackReason ? '（自動切換：' + data.fallbackReason + '）' : '')));
                 }
             };
             controller.postMessage({core:$('film-engine-wasm').textContent, file, whole, copy, preferGpu, start, end, ext, geometry:g, color:$('film-color').value});
